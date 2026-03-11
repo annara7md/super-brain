@@ -32,7 +32,17 @@ REQUIRED_EXPORT_PATHS = (
 
 
 def _load_template(name: str) -> Template:
-    return Template((TEMPLATE_ROOT / name).read_text(encoding="utf-8"))
+    path = TEMPLATE_ROOT / name
+    try:
+        return Template(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            f"Template '{name}' was not found under template root '{TEMPLATE_ROOT}'."
+        ) from exc
+    except UnicodeDecodeError as exc:
+        raise ValueError(
+            f"Template '{name}' under '{TEMPLATE_ROOT}' could not be decoded as UTF-8."
+        ) from exc
 
 
 def _section_block(section_id: str, body: str) -> str:
